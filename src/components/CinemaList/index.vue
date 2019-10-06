@@ -1,45 +1,83 @@
 <template>
   <div class="cinema_body">
-    <ul>
-      <li v-for="item in cinemaList" :key="item.id">
-        <div>
-          <span>{{item.nm}}</span>
-          <span class="q">
-            <span class="price">{{item.sellPrice}}</span> 元起
-          </span>
+    <Loading v-if="isLoading" />
+    <Scroller v-else :handleToScroll="handleToScroll" :handleToTouchEnd="handleToTouchEnd">
+      <div>
+        <div class="pull-down" v-if="pullDownMessage!=''">
+          <Loading />
+          {{this.pullDownMessage}}
         </div>
-        <div class="address">
-          <span>{{item.addr}}</span>
-          <span>{{item.distance}}</span>
-        </div>
-        <div class="card">
-          <div
-            v-for="(val, key) in tagIsOne(item.tag)"
-            :key="key"
-            :class="key | formatClass(key)"
-          >{{key | formatCard(key)}}</div>
-        </div>
-      </li>
-    </ul>
+        <ul>
+          <li v-for="item in cinemaList" :key="item.id">
+            <div>
+              <span>{{item.nm}}</span>
+              <span class="q">
+                <span class="price">{{item.sellPrice}}</span> 元起
+              </span>
+            </div>
+            <div class="address">
+              <span>{{item.addr}}</span>
+              <span>{{item.distance}}</span>
+            </div>
+            <div class="card">
+              <div
+                v-for="(val, key) in tagIsOne(item.tag)"
+                :key="key"
+                :class="key | formatClass(key)"
+              >{{key | formatCard(key)}}</div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </Scroller>
   </div>
 </template>
 
 <script>
-// allowRefund:1
-// buyout:0
-// cityCardTag:0
-// deal:0
-// endorse:1
-// hallTypeVOList:Array[0]
-// sell:1
-// snack:1
-// vipTag:"折扣卡"
 export default {
   name: "CinemaList",
   data() {
     return {
-      cinemaList: []
+      cinemaList: [],
+      pullDownMessage: "",
+      isLoading: true,
+      prevCityId: -1
     };
+  },
+  methods: {
+    handleToScroll(pos) {
+      if (pos.y > 30) {
+        this.pullDownMessage = "放开刷新";
+      } else {
+        this.pullDownMessage = "";
+      }
+    },
+    handleToTouchEnd(pos) {
+      if (pos.y > 30) {
+        this.pullDownMessage = "数据更新中...";
+        this.request({
+          url: "/api/cinemaList",
+          params: {
+            cityId: 10
+          }
+        })
+          .then(res => {
+            if (res.msg === "ok") {
+              this.pullDownMessage = "更新成功";
+              setTimeout(() => {
+                this.cinemaList = res.data.cinemas;
+                this.pullDownMessage = "";
+              }, 500);
+            }
+          })
+          .catch(err => {
+            this.pullDownMessage = "更新失败";
+            setTimeout(() => {
+              this.pullDownMessage = "";
+            }, 1000);
+          });
+      }
+    }
   },
   computed: {
     tagIsOne() {
@@ -86,17 +124,28 @@ export default {
       return tagObj[key];
     }
   },
-  created() {
+  activated() {
+    let cityId = this.$store.state.city.id;
+    if (this.prevCityId == cityId) {
+      return;
+    }
+    this.isLoading = true;
     this.request({
       url: "/api/cinemaList",
       params: {
-        cityId: 10
+        cityId
       }
-    }).then(res => {
-      if (res.msg === "ok") {
-        this.cinemaList = res.data.cinemas;
-      }
-    });
+    })
+      .then(res => {
+        if (res.msg === "ok") {
+          this.cinemaList = res.data.cinemas;
+          this.isLoading = false;
+          this.prevCityId = cityId;
+        }
+      })
+      .catch(err => {
+        this.isLoading = false;
+      });
   }
 };
 </script>
@@ -105,11 +154,24 @@ export default {
 .cinema_body {
   flex: 1;
   overflow: auto;
+  .pull-down {
+    position: relative;
+    height: 70px;
+    width: 100%;
+    text-align: center;
+    font-size: 14px;
+  }
   ul {
-    padding: 20px;
+    margin: 0 12px;
     li {
       border-bottom: 1px solid #e6e6e6;
-      margin-bottom: 20px;
+      margin-top: 12px;
+      &.pull-down {
+        padding: 0;
+        margin: 0;
+        text-align: center;
+        width: 100%;
+      }
     }
   }
   div {

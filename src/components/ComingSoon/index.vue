@@ -1,24 +1,33 @@
 <template>
   <div class="movie-body">
-    <ul>
-      <li v-for="item in comingList" :key="item.id">
-        <div class="pic-show">
-          <img :src="item.img | setWH('128.180')" />
+    <Loading v-if="isLoading" />
+    <Scroller v-else :handleToScroll="handleToScroll" :handleToTouchEnd="handleToTouchEnd">
+      <div>
+        <div class="pull-down" v-if="pullDownMessage!=''">
+          <Loading />
+          {{this.pullDownMessage}}
         </div>
-        <div class="info-list">
-          <h2>
-            {{item.nm}}
-            <img v-if="item.version" src="@/assets/images/maxs.png" />
-          </h2>
-          <p>
-            <span class="person">{{item.wish}}</span>人想看
-          </p>
-          <p>主演:{{item.star}}</p>
-          <p>{{item.rt}}上映</p>
-        </div>
-        <div class="btn-pre">预售</div>
-      </li>
-    </ul>
+        <ul>
+          <li v-for="item in comingList" :key="item.id">
+            <div class="pic-show">
+              <img :src="item.img | setWH('128.180')" />
+            </div>
+            <div class="info-list">
+              <h2>
+                {{item.nm}}
+                <img v-if="item.version" src="@/assets/images/maxs.png" />
+              </h2>
+              <p>
+                <span class="person">{{item.wish}}</span>人想看
+              </p>
+              <p>主演:{{item.star}}</p>
+              <p>{{item.rt}}上映</p>
+            </div>
+            <div class="btn-pre">预售</div>
+          </li>
+        </ul>
+      </div>
+    </Scroller>
   </div>
 </template>
 
@@ -28,20 +37,69 @@ export default {
   name: "ComingSoon",
   data() {
     return {
-      comingList: []
+      comingList: [],
+      pullDownMessage: "",
+      isLoading: true,
+      prevCityId: -1
     };
   },
-  created() {
+  methods: {
+    handleToScroll(pos) {
+      if (pos.y > 30) {
+        this.pullDownMessage = "放开刷新";
+      } else {
+        this.pullDownMessage = "";
+      }
+    },
+    handleToTouchEnd(pos) {
+      if (pos.y > 30) {
+        this.pullDownMessage = "数据更新中...";
+        this.request({
+          url: "/api/movieComingList",
+          params: {
+            cityId: 1
+          }
+        })
+          .then(res => {
+            if (res.msg === "ok") {
+              this.pullDownMessage = "更新成功";
+              setTimeout(() => {
+                this.comingList = res.data.comingList;
+                this.pullDownMessage = "";
+              }, 500);
+            }
+          })
+          .catch(err => {
+            this.pullDownMessage = "更新失败";
+            setTimeout(() => {
+              this.pullDownMessage = "";
+            }, 1000);
+          });
+      }
+    }
+  },
+  activated() {
+    let cityId = this.$store.state.city.id;
+    if (this.prevCityId == cityId) {
+      return;
+    }
+    this.isLoading = true;
     this.request({
       url: "/api/movieComingList",
       params: {
-        cityId: 1
+        cityId
       }
-    }).then(res => {
-      if (res.msg === "ok") {
-        this.comingList = res.data.comingList;
-      }
-    });
+    })
+      .then(res => {
+        if (res.msg === "ok") {
+          this.comingList = res.data.comingList;
+          this.isLoading = false;
+          this.prevCityId = cityId;
+        }
+      })
+      .catch(err => {
+        this.isLoading = false;
+      });
   }
 };
 </script>
@@ -50,6 +108,13 @@ export default {
 .movie-body {
   flex: 1;
   overflow: auto;
+  .pull-down {
+    position: relative;
+    height: 70px;
+    width: 100%;
+    text-align: center;
+    font-size: 14px;
+  }
   ul {
     margin: 0 12px;
     overflow: hidden;
