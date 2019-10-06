@@ -4,88 +4,117 @@
       <div class="city_hot">
         <h2>热门城市</h2>
         <ul class="clearfix">
-          <li>上海</li>
-          <li>北京</li>
-          <li>上海</li>
-          <li>北京</li>
-          <li>上海</li>
-          <li>北京</li>
-          <li>上海</li>
-          <li>北京</li>
+          <li v-for="item in hotCityList" :key="item.id">{{item.nm}}</li>
         </ul>
       </div>
-      <div class="city_sort">
-        <div>
-          <h2>A</h2>
+      <div class="city_sort" ref="cityGroups">
+        <div v-for="item in cityList" :key="item.index">
+          <h2>{{item.index}}</h2>
           <ul>
-            <li>阿拉善盟</li>
-            <li>鞍山</li>
-            <li>安庆</li>
-            <li>安阳</li>
-          </ul>
-        </div>
-        <div>
-          <h2>B</h2>
-          <ul>
-            <li>北京</li>
-            <li>保定</li>
-            <li>蚌埠</li>
-            <li>包头</li>
-          </ul>
-        </div>
-        <div>
-          <h2>A</h2>
-          <ul>
-            <li>阿拉善盟</li>
-            <li>鞍山</li>
-            <li>安庆</li>
-            <li>安阳</li>
-          </ul>
-        </div>
-        <div>
-          <h2>B</h2>
-          <ul>
-            <li>北京</li>
-            <li>保定</li>
-            <li>蚌埠</li>
-            <li>包头</li>
-          </ul>
-        </div>
-        <div>
-          <h2>A</h2>
-          <ul>
-            <li>阿拉善盟</li>
-            <li>鞍山</li>
-            <li>安庆</li>
-            <li>安阳</li>
-          </ul>
-        </div>
-        <div>
-          <h2>B</h2>
-          <ul>
-            <li>北京</li>
-            <li>保定</li>
-            <li>蚌埠</li>
-            <li>包头</li>
+            <li v-for="item in item.list" :key="item.id">{{item.nm}}</li>
           </ul>
         </div>
       </div>
     </div>
     <div class="city_index">
       <ul>
-        <li>A</li>
-        <li>B</li>
-        <li>C</li>
-        <li>D</li>
-        <li>E</li>
+        <li
+          v-for="(item,index) in cityList"
+          :key="item.index"
+          @click="handleToIndex(index)"
+        >{{item.index}}</li>
       </ul>
     </div>
   </div>
 </template>
 
 <script>
+import { log } from "util";
 export default {
-  name: "City"
+  name: "City",
+  data() {
+    return {
+      cityList: [],
+      hotCityList: [],
+      timer: null
+    };
+  },
+  methods: {
+    formatCityList(cities) {
+      var cityList = [];
+      let hotCityList = [];
+      function isExist(firstLetter) {
+        for (let i = 0, len = cityList.length; i < len; i++) {
+          // console.log(cityList[i]);
+          if (cityList[i]["index"] == firstLetter) {
+            return i;
+          }
+        }
+        return -1;
+      }
+
+      cities.forEach(ele => {
+        let firstLetter = ele.py.substr(0, 1).toUpperCase();
+        let index = isExist(firstLetter);
+        if (index == -1) {
+          cityList.push({
+            index: firstLetter,
+            list: [{ nm: ele.nm, id: ele.id }]
+          });
+        } else {
+          cityList[index].list.push({ nm: ele.nm, id: ele.id });
+        }
+
+        if (ele.isHot === 1) {
+          hotCityList.push(ele);
+        }
+      });
+      cityList.sort((a, b) => a.index.charCodeAt() - b.index.charCodeAt());
+      return {
+        cityList,
+        hotCityList
+      };
+    },
+    handleToIndex(index) {
+      const cityGroups = this.$refs.cityGroups;
+      const h2Top = cityGroups.getElementsByTagName("h2")[index].offsetTop;
+      const parent = cityGroups.parentNode;
+      const parentOringinTop = parent.scrollTop;
+      const time = parseInt(20000 / Math.abs(h2Top - parentOringinTop));
+      const isDown = h2Top >= parentOringinTop ? true : false;
+      if (this.timer) {
+        clearInterval(this.timer);
+        this.timer = null;
+      }
+      this.timer = setInterval(() => {
+        if (isDown) {
+          parent.scrollTop += 250;
+          if (parent.scrollTop >= h2Top) {
+            parent.scrollTop = h2Top;
+            clearInterval(this.timer);
+            this.timer = null;
+          }
+        } else {
+          parent.scrollTop -= 250;
+          if (parent.scrollTop <= h2Top) {
+            parent.scrollTop = h2Top;
+            clearInterval(this.timer);
+            this.timer = null;
+          }
+        }
+      }, time);
+    }
+  },
+  created() {
+    this.request("/api/cityList").then(res => {
+      if (res.msg === "ok") {
+        const cities = res.data.cities;
+        const { cityList, hotCityList } = this.formatCityList(cities);
+        this.cityList = cityList;
+        this.hotCityList = hotCityList;
+      }
+    });
+  }
 };
 </script>
 

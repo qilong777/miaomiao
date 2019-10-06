@@ -1,100 +1,23 @@
 <template>
   <div class="cinema_body">
     <ul>
-      <li>
+      <li v-for="item in cinemaList" :key="item.id">
         <div>
-          <span>大地影院(澳东世纪店)</span>
+          <span>{{item.nm}}</span>
           <span class="q">
-            <span class="price">22.9</span> 元起
+            <span class="price">{{item.sellPrice}}</span> 元起
           </span>
         </div>
         <div class="address">
-          <span>金州区大连经济技术开发区澳东世纪3层</span>
-          <span>1763.5km</span>
+          <span>{{item.addr}}</span>
+          <span>{{item.distance}}</span>
         </div>
         <div class="card">
-          <div>小吃</div>
-          <div>折扣卡</div>
-        </div>
-      </li>
-      <li>
-        <div>
-          <span>大地影院(澳东世纪店)</span>
-          <span class="q">
-            <span class="price">22.9</span> 元起
-          </span>
-        </div>
-        <div class="address">
-          <span>金州区大连经济技术开发区澳东世纪3层</span>
-          <span>1763.5km</span>
-        </div>
-        <div class="card">
-          <div>小吃</div>
-          <div>折扣卡</div>
-        </div>
-      </li>
-      <li>
-        <div>
-          <span>大地影院(澳东世纪店)</span>
-          <span class="q">
-            <span class="price">22.9</span> 元起
-          </span>
-        </div>
-        <div class="address">
-          <span>金州区大连经济技术开发区澳东世纪3层</span>
-          <span>1763.5km</span>
-        </div>
-        <div class="card">
-          <div>小吃</div>
-          <div>折扣卡</div>
-        </div>
-      </li>
-      <li>
-        <div>
-          <span>大地影院(澳东世纪店)</span>
-          <span class="q">
-            <span class="price">22.9</span> 元起
-          </span>
-        </div>
-        <div class="address">
-          <span>金州区大连经济技术开发区澳东世纪3层</span>
-          <span>1763.5km</span>
-        </div>
-        <div class="card">
-          <div>小吃</div>
-          <div>折扣卡</div>
-        </div>
-      </li>
-      <li>
-        <div>
-          <span>大地影院(澳东世纪店)</span>
-          <span class="q">
-            <span class="price">22.9</span> 元起
-          </span>
-        </div>
-        <div class="address">
-          <span>金州区大连经济技术开发区澳东世纪3层</span>
-          <span>1763.5km</span>
-        </div>
-        <div class="card">
-          <div>小吃</div>
-          <div>折扣卡</div>
-        </div>
-      </li>
-      <li>
-        <div>
-          <span>大地影院(澳东世纪店)</span>
-          <span class="q">
-            <span class="price">22.9</span> 元起
-          </span>
-        </div>
-        <div class="address">
-          <span>金州区大连经济技术开发区澳东世纪3层</span>
-          <span>1763.5km</span>
-        </div>
-        <div class="card">
-          <div>小吃</div>
-          <div>折扣卡</div>
+          <div
+            v-for="(val, key) in tagIsOne(item.tag)"
+            :key="key"
+            :class="key | formatClass(key)"
+          >{{key | formatCard(key)}}</div>
         </div>
       </li>
     </ul>
@@ -102,8 +25,79 @@
 </template>
 
 <script>
+// allowRefund:1
+// buyout:0
+// cityCardTag:0
+// deal:0
+// endorse:1
+// hallTypeVOList:Array[0]
+// sell:1
+// snack:1
+// vipTag:"折扣卡"
 export default {
-  name: "CinemaList"
+  name: "CinemaList",
+  data() {
+    return {
+      cinemaList: []
+    };
+  },
+  computed: {
+    tagIsOne() {
+      let arr = ["allowRefund", "buyout", "deal", "endorse", "snack", "vipTag"];
+      return function(tags) {
+        let res = {};
+        for (let key in tags) {
+          if (tags.hasOwnProperty(key)) {
+            if (
+              arr.indexOf(key) != -1 &&
+              (tags[key] == "1" || tags[key] == "折扣卡")
+            ) {
+              res[key] = 1;
+            }
+          }
+        }
+        return res;
+      };
+    }
+  },
+  filters: {
+    formatCard(key) {
+      const tagObj = {
+        allowRefund: "可退",
+        buyout: "售空",
+        deal: "可购",
+        endorse: "热卖",
+        snack: "小吃",
+        vipTag: "折扣卡"
+      };
+
+      return tagObj[key];
+    },
+    formatClass(key) {
+      const tagObj = {
+        allowRefund: "bl",
+        buyout: "bl",
+        deal: "bl",
+        endorse: "bl",
+        snack: "or",
+        vipTag: "or"
+      };
+
+      return tagObj[key];
+    }
+  },
+  created() {
+    this.request({
+      url: "/api/cinemaList",
+      params: {
+        cityId: 10
+      }
+    }).then(res => {
+      if (res.msg === "ok") {
+        this.cinemaList = res.data.cinemas;
+      }
+    });
+  }
 };
 </script>
 
