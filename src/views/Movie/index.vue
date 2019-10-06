@@ -2,7 +2,7 @@
   <main>
     <div class="movie-menu">
       <router-link tag="div" to="/movie/city" class="city-name" active-class="active">
-        <span>大连</span>
+        <span>{{$store.state.city.nm}}</span>
         <i class="iconfont icon-lower-triangle"></i>
       </router-link>
       <div class="hot-switch">
@@ -20,6 +20,7 @@
 </template>
 
 <script>
+import { messageBox } from "components/JS";
 export default {
   name: "Movie",
   components: {},
@@ -28,6 +29,34 @@ export default {
     next(vm => {
       vm.$store.commit("changeTitle", "喵喵电影");
     });
+  },
+  mounted() {
+    setTimeout(() => {
+      this.request({
+        url: "/api/getLocation"
+      }).then(res => {
+        if (res.msg === "ok") {
+          let nm = res.data.nm;
+          let id = res.data.id;
+          console.log(id);
+
+          if (id == this.$store.state.city.id) {
+            return;
+          }
+          messageBox({
+            title: "定位",
+            content: nm,
+            cancel: "取消",
+            ok: "切换定位",
+            handleOk() {
+              window.localStorage.setItem("nowNm", nm);
+              window.localStorage.setItem("nowId", id);
+              window.location.reload();
+            }
+          });
+        }
+      });
+    }, 3000);
   }
 };
 </script>

@@ -24,7 +24,7 @@ export function request(config) {
     //需要返回数据
     return res.data;
   }, err => {
-    console.log(err);
+    // console.log(err);
   })
 
   return instance(config);

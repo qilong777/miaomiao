@@ -1,47 +1,112 @@
 <template>
   <div class="movie-body">
-    <ul>
-      <li v-for="item in movieList" :key="item.id">
-        <div class="pic-show">
-          <img :src="item.img | setWH('128.180')" />
+    <Loading v-if="isLoading" />
+    <Scroller v-else :handleToScroll="handleToScroll" :handleToTouchEnd="handleToTouchEnd">
+      <div>
+        <div class="pull-down" v-if="pullDownMessage!=''">
+          <Loading />
+          {{this.pullDownMessage}}
         </div>
-        <div class="info-list">
-          <h2>
-            {{item.nm}}
-            <img v-if="item.version" src="@/assets/images/maxs.png" />
-          </h2>
-          <p>
-            观众评
-            <span class="grade">{{item.sc}}</span>
-          </p>
-          <p>主演:{{item.star}}</p>
-          <p>{{item.showInfo}}</p>
-        </div>
-        <div class="btn-mall">购票</div>
-      </li>
-    </ul>
+
+        <ul>
+          <!-- <li class="pull-down">{{this.pullDownMessage}}</li> -->
+          <li v-for="item in movieList" :key="item.id">
+            <div class="pic-show" @tap="handleToDetail()">
+              <img :src="item.img | setWH('128.180')" />
+            </div>
+            <div class="info-list">
+              <h2>
+                {{item.nm}}
+                <img v-if="item.version" src="@/assets/images/maxs.png" />
+              </h2>
+              <p>
+                观众评
+                <span class="grade">{{item.sc}}</span>
+              </p>
+              <p>主演:{{item.star}}</p>
+              <p>{{item.showInfo}}</p>
+            </div>
+            <div class="btn-mall">购票</div>
+          </li>
+        </ul>
+      </div>
+    </Scroller>
   </div>
 </template>
 
 <script>
+// import BScroll from "better-scroll";
+import { log } from "util";
 export default {
   name: "NowPlaying",
   data() {
     return {
-      movieList: []
+      movieList: [],
+      pullDownMessage: "",
+      isLoading: true,
+      prevCityId: -1
     };
   },
-  created() {
+  methods: {
+    handleToDetail() {
+      console.log("tap");
+    },
+    handleToScroll(pos) {
+      if (pos.y > 30) {
+        this.pullDownMessage = "放开刷新";
+      } else {
+        this.pullDownMessage = "";
+      }
+    },
+    handleToTouchEnd(pos) {
+      if (pos.y > 30) {
+        this.pullDownMessage = "数据更新中...";
+        this.request({
+          url: "/api/movieOnInfoList",
+          params: {
+            cityId: 11
+          }
+        })
+          .then(res => {
+            if (res.msg === "ok") {
+              this.pullDownMessage = "更新成功";
+              setTimeout(() => {
+                this.movieList = res.data.movieList;
+                this.pullDownMessage = "";
+              }, 500);
+            }
+          })
+          .catch(err => {
+            this.pullDownMessage = "更新失败";
+            setTimeout(() => {
+              this.pullDownMessage = "";
+            }, 1000);
+          });
+      }
+    }
+  },
+  activated() {
+    let cityId = this.$store.state.city.id;
+    if (this.prevCityId == cityId) {
+      return;
+    }
+    this.isLoading = true;
     this.request({
       url: "/api/movieOnInfoList",
       params: {
-        cityId: 10
+        cityId
       }
-    }).then(res => {
-      if (res.msg === "ok") {
-        this.movieList = res.data.movieList;
-      }
-    });
+    })
+      .then(res => {
+        if (res.msg === "ok") {
+          this.movieList = res.data.movieList;
+          this.isLoading = false;
+          this.prevCityId = cityId;
+        }
+      })
+      .catch(err => {
+        this.isLoading = false;
+      });
   }
 };
 </script>
@@ -50,6 +115,13 @@ export default {
 .movie-body {
   flex: 1;
   overflow: auto;
+  .pull-down {
+    position: relative;
+    height: 70px;
+    width: 100%;
+    text-align: center;
+    font-size: 14px;
+  }
   ul {
     margin: 0 12px;
     overflow: hidden;

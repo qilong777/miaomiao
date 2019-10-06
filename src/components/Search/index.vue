@@ -51,7 +51,7 @@ export default {
       this.request({
         url: "/api/searchList",
         params: {
-          cityId: 10,
+          cityId: this.$store.state.city.id,
           kw: newVal
         },
         cancelToken: new this.axios.CancelToken(c => {

@@ -1,21 +1,27 @@
 <template>
   <div class="city_body">
     <div class="city_list">
-      <div class="city_hot">
-        <h2>热门城市</h2>
-        <ul class="clearfix">
-          <li v-for="item in hotCityList" :key="item.id">{{item.nm}}</li>
-        </ul>
-      </div>
-      <div class="city_sort" ref="cityGroups">
-        <div v-for="item in cityList" :key="item.index">
-          <h2>{{item.index}}</h2>
-          <ul>
-            <li v-for="item in item.list" :key="item.id">{{item.nm}}</li>
-          </ul>
+      <Loading v-if="isLoading" />
+      <Scroller v-else ref="cityList">
+        <div>
+          <div class="city_hot">
+            <h2>热门城市</h2>
+            <ul class="clearfix" @tap="handleToCity($event)">
+              <li v-for="item in hotCityList" :key="item.id" :data-id="item.id">{{item.nm}}</li>
+            </ul>
+          </div>
+          <div class="city_sort" ref="cityGroups">
+            <div v-for="item in cityList" :key="item.index">
+              <h2>{{item.index}}</h2>
+              <ul @tap="handleToCity($event)">
+                <li v-for="item in item.list" :key="item.id" :data-id="item.id">{{item.nm}}</li>
+              </ul>
+            </div>
+          </div>
         </div>
-      </div>
+      </Scroller>
     </div>
+
     <div class="city_index">
       <ul>
         <li
@@ -36,7 +42,7 @@ export default {
     return {
       cityList: [],
       hotCityList: [],
-      timer: null
+      isLoading: true
     };
   },
   methods: {
@@ -76,42 +82,67 @@ export default {
       };
     },
     handleToIndex(index) {
-      const cityGroups = this.$refs.cityGroups;
-      const h2Top = cityGroups.getElementsByTagName("h2")[index].offsetTop;
-      const parent = cityGroups.parentNode;
-      const parentOringinTop = parent.scrollTop;
-      const time = parseInt(20000 / Math.abs(h2Top - parentOringinTop));
-      const isDown = h2Top >= parentOringinTop ? true : false;
-      if (this.timer) {
-        clearInterval(this.timer);
-        this.timer = null;
-      }
-      this.timer = setInterval(() => {
-        if (isDown) {
-          parent.scrollTop += 250;
-          if (parent.scrollTop >= h2Top) {
-            parent.scrollTop = h2Top;
-            clearInterval(this.timer);
-            this.timer = null;
-          }
-        } else {
-          parent.scrollTop -= 250;
-          if (parent.scrollTop <= h2Top) {
-            parent.scrollTop = h2Top;
-            clearInterval(this.timer);
-            this.timer = null;
-          }
-        }
-      }, time);
+      const h2Top = this.$refs.cityGroups.getElementsByTagName("h2")[index]
+        .offsetTop;
+      this.$refs.cityList.toScrollTop(-h2Top);
+      // const cityGroups = this.$refs.cityGroups;
+      // const h2Top = cityGroups.getElementsByTagName("h2")[index].offsetTop;
+      // const parent = cityGroups.parentNode;
+      // const parentOringinTop = parent.scrollTop;
+      // const time = parseInt(20000 / Math.abs(h2Top - parentOringinTop));
+      // const isDown = h2Top >= parentOringinTop ? true : false;
+      // if (this.timer) {
+      //   clearInterval(this.timer);
+      //   this.timer = null;
+      // }
+      // this.timer = setInterval(() => {
+      //   if (isDown) {
+      //     parent.scrollTop += 250;
+      //     if (parent.scrollTop >= h2Top) {
+      //       parent.scrollTop = h2Top;
+      //       clearInterval(this.timer);
+      //       this.timer = null;
+      //     }
+      //   } else {
+      //     parent.scrollTop -= 250;
+      //     if (parent.scrollTop <= h2Top) {
+      //       parent.scrollTop = h2Top;
+      //       clearInterval(this.timer);
+      //       this.timer = null;
+      //     }
+      //   }
+      // }, time);
+    },
+    handleToCity(e) {
+      e = e || window.event;
+      const target = e.target || e.srcElement;
+      if (target.nodeName != "LI") return;
+      let nm = target.innerText;
+      let id = target.dataset.id;
+      window.localStorage.setItem("nowNm", nm);
+      window.localStorage.setItem("nowId", id);
+      this.$store.commit("city/CITY_INFO", { nm, id });
+      this.$router.push("/movie/nowPlaying");
     }
   },
   created() {
+    let cityList = window.localStorage.getItem("cityList");
+    let hotCityList = window.localStorage.getItem("hotCityList");
+    if (cityList && hotCityList) {
+      this.cityList = JSON.parse(cityList);
+      this.hotCityList = JSON.parse(hotCityList);
+      this.isLoading = false;
+      return;
+    }
     this.request("/api/cityList").then(res => {
       if (res.msg === "ok") {
         const cities = res.data.cities;
         const { cityList, hotCityList } = this.formatCityList(cities);
         this.cityList = cityList;
         this.hotCityList = hotCityList;
+        this.isLoading = false;
+        window.localStorage.setItem("cityList", JSON.stringify(cityList));
+        window.localStorage.setItem("hotCityList", JSON.stringify(hotCityList));
       }
     });
   }
@@ -136,7 +167,7 @@ export default {
     }
   }
   .city_hot {
-    margin-top: 20px;
+    margin-top: 0px;
     h2 {
       padding-left: 15px;
       line-height: 30px;
