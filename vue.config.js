@@ -6,7 +6,17 @@ function resolve(dir) {
 
 module.exports = {
 
+  devServer: {
+    proxy: {
+      '/api': {
+        target: "http://www.h5yjy.com",
+        changeOrigin: true
+      }
+    }
+  },
+
   chainWebpack: (config) => {
+    //set第一个参数：设置的别名，第二个参数：设置的路径
     config.resolve.alias
       .set('@', resolve('./src'))
       .set('assets', resolve('./src/assets'))
@@ -14,7 +24,5 @@ module.exports = {
       .set('routers', resolve('./src/routers'))
       .set('stores', resolve('./src/stores'))
       .set('views', resolve('./src/views'))
-    //set第一个参数：设置的别名，第二个参数：设置的路径
-
   }
 }

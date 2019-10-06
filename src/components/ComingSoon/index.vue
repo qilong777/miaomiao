@@ -1,17 +1,20 @@
 <template>
   <div class="movie-body">
     <ul>
-      <li>
+      <li v-for="item in comingList" :key="item.id">
         <div class="pic-show">
-          <img src="/images/movie_1.jpg" />
+          <img :src="item.img | setWH('128.180')" />
         </div>
         <div class="info-list">
-          <h2>毒液：致命守护者</h2>
+          <h2>
+            {{item.nm}}
+            <img v-if="item.version" src="@/assets/images/maxs.png" />
+          </h2>
           <p>
-            <span class="person">17746</span>人想看
+            <span class="person">{{item.wish}}</span>人想看
           </p>
-          <p>主演：</p>
-          <p>2018-11-30上映</p>
+          <p>主演:{{item.star}}</p>
+          <p>{{item.rt}}上映</p>
         </div>
         <div class="btn-pre">预售</div>
       </li>
@@ -20,8 +23,26 @@
 </template>
 
 <script>
+import { log } from "util";
 export default {
-  name: "ComingSoon"
+  name: "ComingSoon",
+  data() {
+    return {
+      comingList: []
+    };
+  },
+  created() {
+    this.request({
+      url: "/api/movieComingList",
+      params: {
+        cityId: 1
+      }
+    }).then(res => {
+      if (res.msg === "ok") {
+        this.comingList = res.data.comingList;
+      }
+    });
+  }
 };
 </script>
 
