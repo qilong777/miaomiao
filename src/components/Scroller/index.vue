@@ -23,17 +23,18 @@ export default {
       this.scroll.scrollTo(0, y);
     }
   },
-  mounted() {
-    let scroll = new BScroll(this.$refs.wrapper, {
-      tap: true,
-      probeType: 1
-    });
-    this.scroll = scroll;
-    scroll.on("scroll", pos => {
-      this.handleToScroll(pos);
-    });
-    scroll.on("touchEnd", pos => {
-      this.handleToTouchEnd(pos);
+  created() {
+    this.$nextTick(() => {
+      this.scroll = new BScroll(this.$refs.wrapper, {
+        tap: true,
+        probeType: 1
+      });
+      this.scroll.on("scroll", pos => {
+        this.handleToScroll(pos);
+      });
+      this.scroll.on("touchEnd", pos => {
+        this.handleToTouchEnd(pos);
+      });
     });
   }
 };
@@ -41,6 +42,7 @@ export default {
 
 <style lang="scss" scoped>
 .wrapper {
+  position: absolute;
   height: 100%;
   width: 100%;
 }

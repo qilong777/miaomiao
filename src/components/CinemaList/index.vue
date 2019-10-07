@@ -58,7 +58,7 @@ export default {
         this.request({
           url: "/api/cinemaList",
           params: {
-            cityId: 10
+            cityId: this.$store.state.city.id
           }
         })
           .then(res => {
@@ -152,6 +152,7 @@ export default {
 
 <style lang="scss" scoped>
 .cinema_body {
+  position: relative;
   flex: 1;
   overflow: auto;
   .pull-down {
@@ -171,6 +172,10 @@ export default {
         margin: 0;
         text-align: center;
         width: 100%;
+      }
+      &:nth-of-type(1) {
+        margin-top: 0;
+        padding-top: 12px;
       }
     }
   }

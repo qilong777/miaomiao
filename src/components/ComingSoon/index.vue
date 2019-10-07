@@ -64,7 +64,7 @@ export default {
         this.request({
           url: "/api/movieComingList",
           params: {
-            cityId: 1
+            cityId: this.$store.state.city.id
           }
         })
           .then(res => {
@@ -113,6 +113,7 @@ export default {
 
 <style lang="scss" scoped>
 .movie-body {
+  position: relative;
   flex: 1;
   overflow: auto;
   .pull-down {

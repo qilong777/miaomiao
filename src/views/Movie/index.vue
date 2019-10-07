@@ -30,9 +30,6 @@ export default {
   beforeRouteEnter(to, from, next) {
     document.title = "喵喵电影";
     next();
-    // next(vm => {
-    //   vm.$store.commit("changeTitle", "喵喵电影");
-    // });
   },
   mounted() {
     setTimeout(() => {
@@ -68,6 +65,7 @@ export default {
 <style lang="scss" scoped>
 .movie-menu {
   display: flex;
+  flex-shrink: 0;
   width: 100%;
   height: 45px;
   justify-content: space-between;

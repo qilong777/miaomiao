@@ -7,9 +7,7 @@
           <Loading />
           {{this.pullDownMessage}}
         </div>
-
         <ul>
-          <!-- <li class="pull-down">{{this.pullDownMessage}}</li> -->
           <li v-for="item in movieList" :key="item.id" @tap="handleToDetail($event,item.id)">
             <div class="pic-show">
               <img :src="item.img | setWH('128.180')" />
@@ -35,8 +33,6 @@
 </template>
 
 <script>
-// import BScroll from "better-scroll";
-import { log } from "util";
 export default {
   name: "NowPlaying",
   data() {
@@ -68,7 +64,7 @@ export default {
         this.request({
           url: "/api/movieOnInfoList",
           params: {
-            cityId: 11
+            cityId: this.$store.state.city.id
           }
         })
           .then(res => {
@@ -89,7 +85,7 @@ export default {
       }
     }
   },
-  activated() {
+  created() {
     let cityId = this.$store.state.city.id;
     if (this.prevCityId == cityId) {
       return;
@@ -117,6 +113,7 @@ export default {
 
 <style lang="scss" scoped>
 .movie-body {
+  position: relative;
   flex: 1;
   overflow: auto;
   .pull-down {

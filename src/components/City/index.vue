@@ -85,33 +85,6 @@ export default {
       const h2Top = this.$refs.cityGroups.getElementsByTagName("h2")[index]
         .offsetTop;
       this.$refs.cityList.toScrollTop(-h2Top);
-      // const cityGroups = this.$refs.cityGroups;
-      // const h2Top = cityGroups.getElementsByTagName("h2")[index].offsetTop;
-      // const parent = cityGroups.parentNode;
-      // const parentOringinTop = parent.scrollTop;
-      // const time = parseInt(20000 / Math.abs(h2Top - parentOringinTop));
-      // const isDown = h2Top >= parentOringinTop ? true : false;
-      // if (this.timer) {
-      //   clearInterval(this.timer);
-      //   this.timer = null;
-      // }
-      // this.timer = setInterval(() => {
-      //   if (isDown) {
-      //     parent.scrollTop += 250;
-      //     if (parent.scrollTop >= h2Top) {
-      //       parent.scrollTop = h2Top;
-      //       clearInterval(this.timer);
-      //       this.timer = null;
-      //     }
-      //   } else {
-      //     parent.scrollTop -= 250;
-      //     if (parent.scrollTop <= h2Top) {
-      //       parent.scrollTop = h2Top;
-      //       clearInterval(this.timer);
-      //       this.timer = null;
-      //     }
-      //   }
-      // }, time);
     },
     handleToCity(e) {
       e = e || window.event;
@@ -151,11 +124,14 @@ export default {
 
 <style lang="scss" scoped>
 .city_body {
-  margin-top: 51px;
+  // margin-top: 51px;
+  .wrapper {
+    position: static;
+  }
   display: flex;
   width: 100%;
   position: absolute;
-  top: 0;
+  top: 50px;
   bottom: 0;
   .city_list {
     flex: 1;
@@ -215,6 +191,7 @@ export default {
   .city_index {
     width: 20px;
     display: flex;
+    font-size: 12px;
     flex-direction: column;
     justify-content: center;
     text-align: center;
