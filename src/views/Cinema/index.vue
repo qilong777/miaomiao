@@ -1,5 +1,6 @@
 <template>
   <main>
+    <Header title="喵喵影院"></Header>
     <div class="cinema_menu">
       <div class="city_switch">
         全城
@@ -19,16 +20,18 @@
 </template>
 
 <script>
+import Header from "components/Header";
 import CinemaList from "components/CinemaList";
 export default {
   name: "Cinema",
   beforeRouteEnter(to, from, next) {
     document.title = "喵喵影院";
-    next(vm => {
-      vm.$store.commit("changeTitle", "喵喵影院");
-    });
+    next();
+    // next(vm => {
+    //   vm.$store.commit("changeTitle", "喵喵影院");
+    // });
   },
-  components: { CinemaList }
+  components: { Header, CinemaList }
 };
 </script>
 

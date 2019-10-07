@@ -1,6 +1,7 @@
 <template>
   <header>
-    <h1>{{$store.state.title}}</h1>
+    <slot></slot>
+    <h1>{{title}}</h1>
   </header>
 </template>
 

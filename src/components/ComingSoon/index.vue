@@ -8,7 +8,7 @@
           {{this.pullDownMessage}}
         </div>
         <ul>
-          <li v-for="item in comingList" :key="item.id">
+          <li v-for="item in comingList" :key="item.id" @tap="handleToDetail($event,item.id)">
             <div class="pic-show">
               <img :src="item.img | setWH('128.180')" />
             </div>
@@ -44,6 +44,13 @@ export default {
     };
   },
   methods: {
+    handleToDetail(e, id) {
+      e = e || window.event;
+      const target = e.target || e.srcElement;
+      if (target.nodeName == "H2" || target.nodeName == "IMG") {
+        this.$router.push("comingDetail/" + id);
+      }
+    },
     handleToScroll(pos) {
       if (pos.y > 30) {
         this.pullDownMessage = "放开刷新";

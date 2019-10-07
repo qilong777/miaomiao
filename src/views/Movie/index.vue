@@ -1,5 +1,6 @@
 <template>
   <main>
+    <Header title="喵喵电影"></Header>
     <div class="movie-menu">
       <router-link tag="div" to="/movie/city" class="city-name" active-class="active">
         <span>{{$store.state.city.nm}}</span>
@@ -16,19 +17,22 @@
     <keep-alive>
       <router-view></router-view>
     </keep-alive>
+    <router-view name="detail"></router-view>
   </main>
 </template>
 
 <script>
+import Header from "components/Header";
 import { messageBox } from "components/JS";
 export default {
   name: "Movie",
-  components: {},
+  components: { Header },
   beforeRouteEnter(to, from, next) {
     document.title = "喵喵电影";
-    next(vm => {
-      vm.$store.commit("changeTitle", "喵喵电影");
-    });
+    next();
+    // next(vm => {
+    //   vm.$store.commit("changeTitle", "喵喵电影");
+    // });
   },
   mounted() {
     setTimeout(() => {

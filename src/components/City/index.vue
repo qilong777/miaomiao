@@ -151,7 +151,7 @@ export default {
 
 <style lang="scss" scoped>
 .city_body {
-  margin-top: 45px;
+  margin-top: 51px;
   display: flex;
   width: 100%;
   position: absolute;
@@ -167,7 +167,7 @@ export default {
     }
   }
   .city_hot {
-    margin-top: 0px;
+    margin-top: 46px;
     h2 {
       padding-left: 15px;
       line-height: 30px;

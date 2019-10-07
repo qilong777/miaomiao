@@ -10,8 +10,8 @@
 
         <ul>
           <!-- <li class="pull-down">{{this.pullDownMessage}}</li> -->
-          <li v-for="item in movieList" :key="item.id">
-            <div class="pic-show" @tap="handleToDetail()">
+          <li v-for="item in movieList" :key="item.id" @tap="handleToDetail($event,item.id)">
+            <div class="pic-show">
               <img :src="item.img | setWH('128.180')" />
             </div>
             <div class="info-list">
@@ -48,8 +48,12 @@ export default {
     };
   },
   methods: {
-    handleToDetail() {
-      console.log("tap");
+    handleToDetail(e, id) {
+      e = e || window.event;
+      const target = e.target || e.srcElement;
+      if (target.nodeName == "H2" || target.nodeName == "IMG") {
+        this.$router.push("nowDetail/" + id);
+      }
     },
     handleToScroll(pos) {
       if (pos.y > 30) {
