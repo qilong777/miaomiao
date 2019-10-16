@@ -1,6 +1,8 @@
 # miaomiao
 
-### vue.config.js的publicPath如果在开发模式请注释掉
+## vue.config.js的publicPath如果在开发模式请注释掉
+
+## api接口的代码没有上传，自己加油吧！
 
 ## Project setup
 ```
