@@ -2,16 +2,19 @@ import Vue from 'vue'
 import MessageBox from './MessageBox'
 
 export const messageBox = (function () {
-  let defaults = {
-    title: "",
-    content: "",
-    cancel: "",
-    ok: "",
-    handleCancel: null,
-    handleOk: null
-  };
-  let Mycomponent = Vue.extend(MessageBox);
+
   return function (opts) {
+
+    let defaults = {
+      title: "",
+      content: "",
+      cancel: "",
+      ok: "",
+      handleCancel: null,
+      handleOk: null
+    };
+    let Mycomponent = Vue.extend(MessageBox);
+
     for (const key in defaults) {
       defaults[key] = opts[key];
     }

@@ -1,6 +1,7 @@
 <template>
   <header>
-    <slot></slot>
+    <van-icon v-if="show" @click="handleToBack()" name="arrow-left" />
+    <!-- <slot></slot> -->
     <h1>{{title}}</h1>
   </header>
 </template>
@@ -12,6 +13,16 @@ export default {
     title: {
       type: String,
       default: "喵喵电影"
+    }
+  },
+  methods: {
+    handleToBack() {
+      this.$router.back();
+    }
+  },
+  computed: {
+    show() {
+      return window.history.length > 1;
     }
   }
 };

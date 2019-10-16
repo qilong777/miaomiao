@@ -8,7 +8,7 @@
           {{this.pullDownMessage}}
         </div>
         <ul>
-          <li v-for="item in comingList" :key="item.id" @tap="handleToDetail($event,item.id)">
+          <li v-for="item in comingList" :key="item.id" @tap="handleToDetail(item.id)">
             <div class="pic-show">
               <img :src="item.img | setWH('128.180')" />
             </div>
@@ -23,7 +23,7 @@
               <p>主演:{{item.star}}</p>
               <p>{{item.rt}}上映</p>
             </div>
-            <div class="btn-pre">预售</div>
+            <div class="btn-pre" @tap.stop>预售</div>
           </li>
         </ul>
       </div>
@@ -44,12 +44,8 @@ export default {
     };
   },
   methods: {
-    handleToDetail(e, id) {
-      e = e || window.event;
-      const target = e.target || e.srcElement;
-      if (target.nodeName == "H2" || target.nodeName == "IMG") {
-        this.$router.push("comingDetail/" + id);
-      }
+    handleToDetail(id) {
+      this.$router.push("comingDetail/" + id);
     },
     handleToScroll(pos) {
       if (pos.y > 30) {

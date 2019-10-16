@@ -39,8 +39,6 @@ export default {
         if (res.msg === "ok") {
           let nm = res.data.nm;
           let id = res.data.id;
-          console.log(id);
-
           if (id == this.$store.state.city.id) {
             return;
           }
@@ -57,7 +55,7 @@ export default {
           });
         }
       });
-    }, 3000);
+    }, 2000);
   }
 };
 </script>

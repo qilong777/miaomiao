@@ -5,9 +5,14 @@ function resolve(dir) {
 
 
 module.exports = {
-
+  //开发模式注释
+  // publicPath: '/miaomiao',
   devServer: {
     proxy: {
+      '/api2': {
+        target: "http://localhost:3000",
+        changeOrigin: true
+      },
       '/api': {
         target: "http://www.h5yjy.com",
         changeOrigin: true

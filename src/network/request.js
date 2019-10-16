@@ -1,7 +1,8 @@
 import axios from 'axios'
 export function request(config) {
   const instance = axios.create({
-    timeout: 5000
+    timeout: 5000,
+    // baseURL: "http://www.h5yjy.com",
   })
   //请求拦截器
   // instance.interceptors.request.use(config => {

@@ -8,7 +8,7 @@
           {{this.pullDownMessage}}
         </div>
         <ul>
-          <li v-for="item in movieList" :key="item.id" @tap="handleToDetail($event,item.id)">
+          <li v-for="item in movieList" :key="item.id" @tap="handleToDetail(item.id)">
             <div class="pic-show">
               <img :src="item.img | setWH('128.180')" />
             </div>
@@ -24,7 +24,7 @@
               <p>主演:{{item.star}}</p>
               <p>{{item.showInfo}}</p>
             </div>
-            <div class="btn-mall">购票</div>
+            <div class="btn-mall" @tap.stop>购票</div>
           </li>
         </ul>
       </div>
@@ -44,12 +44,9 @@ export default {
     };
   },
   methods: {
-    handleToDetail(e, id) {
-      e = e || window.event;
-      const target = e.target || e.srcElement;
-      if (target.nodeName == "H2" || target.nodeName == "IMG") {
-        this.$router.push("nowDetail/" + id);
-      }
+    //进入详情页
+    handleToDetail(id) {
+      this.$router.push("nowDetail/" + id);
     },
     handleToScroll(pos) {
       if (pos.y > 30) {
@@ -85,7 +82,7 @@ export default {
       }
     }
   },
-  created() {
+  activated() {
     let cityId = this.$store.state.city.id;
     if (this.prevCityId == cityId) {
       return;
